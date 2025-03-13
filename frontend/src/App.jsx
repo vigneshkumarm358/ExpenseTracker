@@ -1,20 +1,22 @@
 import React from 'react'
-import 'bootstrap/dist/css/bootstrap.min.css';
-import GetStart from './components/GetStart.jsx'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Signin from './components/Signin.jsx';
+import { Route, Routes } from 'react-router-dom'
+import PrivateRoute from './components/PrivateRoute'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Navbar from './components/Navbar'
 
 const App = () => {
   return (
     <div>
-     <BrowserRouter>
-      
+      <Navbar />
       <Routes>
-        <Route path="/" element={ <GetStart />} />
-        <Route path='/signin' element={ <Signin />} />
+        <Route element={<PrivateRoute />}>
+        <Route path='/' element={<Home />} />
+        </Route> 
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
       </Routes>
-      </BrowserRouter>
-      
     </div>
   )
 }

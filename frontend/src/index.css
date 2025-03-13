@@ -1,3 +1,1 @@
-.bg-stone-200 {
-  background-color: oklch(0.97 0.001 106.424);
-}
+@import "tailwindcss";
