@@ -1,44 +1,41 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
+import { IoHomeSharp } from "react-icons/io5";
+import { BsFillPlusCircleFill } from "react-icons/bs";
+import { ImUser } from "react-icons/im";
+import { FaChartPie } from "react-icons/fa";
+import { GrTransaction } from "react-icons/gr";
 
 const Navbar = () => {
-  const { user, navigate } = useContext(AuthContext);
-
+  const { user } = useContext(AuthContext);
   return (
-    <nav className="bg-gray-900 text-white py-4 shadow-md">
-      <div className="container mx-auto flex justify-between items-center px-6">
-        {/* Logo or Brand Name */}
-        <h1 className="text-xl font-bold">
-          <Link to="/">MyApp</Link>
-        </h1>
+    <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 bg-white shadow-lg rounded-full px-6 py-2 w-full  flex justify-between items-center">
+      <NavItem to="/" icon={<IoHomeSharp />} label="Home" />
+      <NavItem to="/transactions" icon={<GrTransaction />} label="Transactions" />
+      
+      {/* Centered Floating Add Button */}
+      <Link to="/add" className="flex items-center justify-center bg-blue-500 text-white p-4 rounded-full shadow-md transition hover:bg-blue-600">
+        <BsFillPlusCircleFill className="text-4xl" />
+      </Link>
 
-        {/* Navigation Links */}
-        <div className="space-x-6 flex items-center">
-          <Link to="/" className="hover:text-sky-400 transition">
-            Home
-          </Link>
-
-          {user ? (
-            <p className="bg-sky-600 px-3 py-1 rounded-full" onClick={() => navigate('/profile')}>
-              {String(user.username || user.name || "NA").slice(0, 1).toUpperCase()}
-            </p>
-          ) : (
-            <Link to="/login" className="hover:text-sky-400 transition">
-              Login
-            </Link>
-          )}
-
-          <Link
-            to="/register"
-            className="bg-sky-500 px-4 py-2 rounded-md hover:bg-sky-600 transition"
-          >
-            Sign In
-          </Link>
-        </div>
-      </div>
+      <NavItem to="/budget" icon={<FaChartPie />} label="Budget" />
+      
+      {user ? (
+        <NavItem to="/profile" icon={<ImUser />} label="Profile" />
+      ) : (
+        <NavItem to="/login" icon={<ImUser />} label="Login" />
+      )}
     </nav>
   );
 };
+
+// Reusable NavItem component
+const NavItem = ({ to, icon, label }) => (
+  <Link to={to} className="flex flex-col items-center text-gray-700 hover:text-blue-500 transition">
+    <span className="text-2xl">{icon}</span>
+    <span className="text-sm">{label}</span>
+  </Link>
+);
 
 export default Navbar;
