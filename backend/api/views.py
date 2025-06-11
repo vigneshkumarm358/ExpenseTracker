@@ -1,38 +1,27 @@
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from api.serializers import *
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from api.models import CustomUser
+from .serializers import CustomTokenObtainPairSerializer, RegisterSerializer, IncomeSerializer
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from api.models import *
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token['username'] = user.username
-        token['email'] = user.email
-        token['phone'] = user.phone_number
-        token['profile'] = user.profile_picture.url if user.profile_picture else None  
-        token['member'] = user.membre_ship 
-        return token   
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 
+class UserRegisterView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
 
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+class IncomeView(generics.ListCreateAPIView):
+    serializer_class = IncomeSerializer
+    permission_classes = [AllowAny]
 
-
-#new user register view
-class RegisterView(APIView):
-    def get(self, request):
-        obj = CustomUser.objects.all()
-        serializer = RegisterSerializer(obj,many=True)
-        return Response(serializer.data)
-
-    def post(self, request):
-        serializer = RegisterSerializer(data = request.data)
+    def get_queryset(self):
+        get_user = self.request.user
+        return Income.objects.filter(user= get_user)
+    def perform_create(self, serializer):
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save(user=self.request.user)
+        else:
+            print(serializer.errors)

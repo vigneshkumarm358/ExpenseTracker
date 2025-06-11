@@ -1,168 +1,94 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { IoMdEyeOff, IoMdEye } from "react-icons/io";
+import AuthContext from "../context/AuthContext";
 
 const Register = () => {
-  const [data, setData] = useState({
-    password: "",
-    username: "",
-    email: "",
-    phone_number: "",
-    profile_picture: "",
-    membre_ship: "gold",
-  });
-  const [profile, setProfile] = useState(null);
-
-  const handleData = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === "file" && files.length > 0) {
-      const file = files[0];
-      setProfile(URL.createObjectURL(file));
-    }
-
-    setData((prevData) => ({
-      ...prevData,
-      [name]: type === "file" ? files[0] : value,
-    }));
-  };
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showpass, setShowpass] = useState(false);
+  const [showconfirmpass, setShowconfirmpass] = useState(false);
+  const { api, navigate } = useContext(AuthContext);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-
-    const formData = new FormData();
-
-    for (const key in data) {
-      formData.append(key, data[key]);
+    if (password !== confirmPassword) {
+      alert("Check the Password");
+      return;
     }
-
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/register/`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await api.post("api/register/", { username, password, email });
 
-      const result = await response.json();
-      console.log(result);
-    } catch (error) {
-      console.error("Error registering:", error);
-    }
+      
+      if (response.status === 201) {
+        console.log(response);
+        navigate("/login");
+      } else {
+        console.log(response);
+      }
+    } catch (error) {}
   };
-
   return (
-    <div className="flex justify-center items-start min-h-screen bg-gray-100">
-      <form
-        className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md"
-        onSubmit={handleRegister}
-      >
-        <h1 className="text-2xl font-bold text-center text-gray-700 mb-6">
-          Register
-        </h1>
-        <div className="mg-4">
-          {profile ? (
-            <img
-              src={profile}
-              alt=""
-              className="w-32 h-32 rounded-full object-cover"
+    <div className="p-4">
+      <form className="flex flex-col gap-2" onSubmit={handleRegister}>
+        <h1>Create Account</h1>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username"
+          className="border py-2 pl-3 rounded"
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="border py-2 pl-3 rounded"
+        />
+        <div className="relative">
+          <input
+            type={showpass ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            className="border py-2 pl-3 rounded w-full"
+          />
+          {showpass ? (
+            <IoMdEye
+              onClick={() => setShowpass(!showpass)}
+              className="absolute top-[30%] text-xl right-2"
             />
           ) : (
-            <img
-              src="https://static.vecteezy.com/system/resources/previews/009/952/574/non_2x/male-profile-picture-vector.jpg"
-              alt=""
-              className="border border-gray-400 p-2 w-32 h-32 rounded-full object-cover"
+            <IoMdEyeOff
+              onClick={() => setShowpass(!showpass)}
+              className="absolute top-[30%] text-xl right-2"
             />
           )}
         </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-600 text-sm mb-1">
-            Profile Picture
-          </label>
+        <div className="relative">
           <input
-            onChange={handleData}
-            type="file"
-            name="profile_picture"
-            className="w-full border p-2 rounded-lg"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-600 text-sm mb-1">Username</label>
-          <input
-            onChange={handleData}
-            type="text"
-            name="username"
-            placeholder="Enter Username"
-            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-600 text-sm mb-1">Email</label>
-          <input
-            onChange={handleData}
-            type="email"
-            name="email"
-            placeholder="Enter Email"
-            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-600 text-sm mb-1">
-            Phone Number
-          </label>
-          <input
-            onChange={handleData}
-            type="number"
-            name="phone_number"
-            placeholder="Enter Phone Number"
-            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-600 text-sm mb-1">Password</label>
-          <input
-            onChange={handleData}
-            type="password"
-            name="password"
-            placeholder="Enter Password"
-            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-600 text-sm mb-1">
-            Confirm Password
-          </label>
-          <input
-            onChange={handleData}
-            type="password"
-            name="confirmPassword"
+            type={showconfirmpass ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm Password"
-            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
+            className="border py-2 pl-3 rounded w-full"
           />
+          {showconfirmpass ? (
+            <IoMdEye
+              onClick={() => setShowconfirmpass(!showconfirmpass)}
+              className="absolute top-[30%] text-xl right-2"
+            />
+          ) : (
+            <IoMdEyeOff
+              onClick={() => setShowconfirmpass(!showconfirmpass)}
+              className="absolute top-[30%] text-xl right-2"
+            />
+          )}
         </div>
-
-        <div className="mb-6">
-          <label className="block text-gray-600 text-sm mb-1">Membership</label>
-          <select
-            name="membre_ship"
-            onChange={handleData}
-            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="gold">Gold</option>
-            <option value="silver">Silver</option>
-            <option value="platinum">Platinum</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
-        >
-          Register
+        <button className="w-full cursor-pointer py-2.5 text-white bg-blue-500 rounded">
+          Create Account
         </button>
       </form>
     </div>

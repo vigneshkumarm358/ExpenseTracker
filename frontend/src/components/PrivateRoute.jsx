@@ -1,25 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Outlet } from "react-router-dom";
-import AuthContext from "../context/AuthContext";
+import React, { useContext } from "react";
+import {  useNavigate } from "react-router-dom";
+import {AuthContext} from "../context/AuthContext";
 
-const PrivateRoute = () => {
-    const {navigate, authTokens  } = useContext(AuthContext)
-    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+const PrivateRoute = ({children}) => {
+    const { isAuthorized } = useContext(AuthContext)
+    const navigate = useNavigate()
    
     
 
-    useEffect(() => {
-      if (!authTokens) {
-        navigate("/login");
-      }
-      setIsCheckingAuth(false);
-    }, [authTokens, navigate]);
-
-    
-    if (isCheckingAuth) {
-      return null; 
-    }
-    return <Outlet />;
+ if (isAuthorized === null){
+  return <p>Loading...</p>
+ }
+ return isAuthorized ? children : navigate('/login')
 };
 
 export default PrivateRoute;

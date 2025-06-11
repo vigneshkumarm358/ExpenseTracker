@@ -1,71 +1,66 @@
-    import React, { useContext, useState } from "react";
-    import AuthContext from "../context/AuthContext";
+import React, { useContext, useState } from "react";
+import AuthContext from "../context/AuthContext";
 
-    const Login = () => {
-    const { navigate, handleLogin } = useContext(AuthContext);
-    const [data, setData] = useState({
-        username: "",
-        password: "",
-    });
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showpassword, setShowPassword] = useState(false);
+  const { api, setIsAuthorized, navigate } = useContext(AuthContext);
 
-    const [showPassword, setShowPassword] = useState(false);
-    function handleData(e) {
-        const { name, value } = e.target;
-        setData(() => {
-        return { ...data, [name]: value };
-        });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("api/token/", { email, password });
+      if (response.status == 200) {
+        localStorage.setItem("ACCESS_TOKEN", response.data.access);
+        localStorage.setItem("REFRESH_TOKEN", response.data.refresh);
+        setIsAuthorized(true);
+        navigate("/");
+      }
+      else{
+        console.log(response.error);
+        
+      }
+    } catch (error) {
+      console.log(error);
     }
-    return (
-        <div className="min-h-screen flex justify-center bg-gray-100">
-        <form className="bg-white p-6 rounded-lg shadow-md w-80 h-fit mt-24" onSubmit={(e) => handleLogin(e,data)}>
-            <h1 className="text-xl font-semibold mb-4 text-center">Login</h1>
+  };
 
-            {/* Username/Email Input */}
-            <input
-            name="username"
-            value={data.username}
-            onChange={handleData}
-            placeholder="Enter username or email"
-            type="text"
-            className="border w-full p-2 mb-3 rounded-md"
-            />
-
-            {/* Password Input with Show Toggle */}
-            <div className="relative">
-            <input
-                name="password"
-                value={data.password}
-                onChange={handleData}
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter password"
-                className="border w-full p-2 mb-3 rounded-md"
-            />
-            <p
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2 cursor-pointer text-blue-500 text-sm"
-            >
-                {showPassword ? "Hide" : "Show"}
-            </p>
-            </div>
-
-            {/* Login Button */}
-            <button
-            type="submit"
-            className="bg-sky-500 text-white w-full py-2 rounded-md hover:bg-sky-600 transition"
-            >
-            Login
-            </button>
-
-            {/* Navigation to Sign Up */}
-            <p
-            onClick={() => navigate("/register")}
-            className="mt-4 text-center text-blue-500 cursor-pointer hover:underline"
-            >
-            Go to Sign Up
-            </p>
-        </form>
+  return (
+    <div className="flex justify-center items-center min-h-screen ">
+      <form
+        onSubmit={handleLogin}
+        className="flex flex-col shadow-2xl rounded p-4"
+      >
+        <h1>Login</h1>
+        <input
+          className="border border-gray-600 py-2 pl-3 rounded"
+          onChange={(e) => setEmail(e.target.value)}
+          value={email}
+          type="text"
+          placeholder="Enter Your Username or Email"
+        />
+        <input
+          className="border border-gray-600 py-2 pl-3 rounded"
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+          type={showpassword ? "text" : "password"}
+          placeholder="Enter Your Password"
+        />
+        <div className="flex gap-1">
+          <input
+            type="checkbox"
+            id="showpass"
+            value={showpassword}
+            onClick={() => setShowPassword(!showpassword)}
+          />
+          <label htmlFor="showpass">Show Password</label>
         </div>
-    );
-    };
+        <button>Login</button>
+        <p onClick={() => navigate('/register')}>If you don't have an account. then click here to create Account.</p>
+      </form>
+    </div>
+  );
+};
 
-    export default Login;
+export default Login;

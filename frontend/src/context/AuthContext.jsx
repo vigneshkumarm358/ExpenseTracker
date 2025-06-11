@@ -1,53 +1,71 @@
+import axios from "axios";
 import { createContext, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import {jwtDecode} from 'jwt-decode'
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
-  const [authTokens, setAuthTokens] = useState(
-    localStorage.getItem("authTokens")
-      ? JSON.parse(localStorage.getItem("authTokens"))
-      : null
-  );
-  const [user, setUser] = useState(
-    localStorage.getItem("authTokens")
-      ? jwtDecode(JSON.parse(localStorage.getItem("authTokens")).access)
-      : null
+  const currency = '₹'
+  const [isAuthorized, setIsAuthorized] = useState(
+    localStorage.getItem("REFRESH_TOKEN") ? true : false
   );
 
-  const handleLogin = async (e, loginData) => {
-    e.preventDefault();
+  const api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL,
+  });
+
+  const refreshToken = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/tokens/`,
-        {
-          method: "POST",
-          headers: {
-            "content-Type": "application/json",
-          },
-          body: JSON.stringify(loginData),
-        }
-      );
-      if (response.status === 200) {
-        const data = await response.json();
-        setAuthTokens(data);
-        setUser(jwtDecode(data.access))
+      const refresh = localStorage.getItem("REFRESH_TOKEN");
+      if (!refresh) throw new Error("No refresh token");
 
-        localStorage.setItem("authTokens", JSON.stringify(data));
-        navigate("/");
-      }
-    } catch (err) {
-      console.log(err);
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/token/refresh/`, {
+        refresh,
+      });
+
+      const newAccess = res.data.access;
+      localStorage.setItem("ACCESS_TOKEN", newAccess);
+      return newAccess;
+    } catch (error) {
+      console.error("Refresh token failed", error);
+      setIsAuthorized(false);
+      localStorage.removeItem("ACCESS_TOKEN");
+      localStorage.removeItem("REFRESH_TOKEN");
+      navigate("/login");
+      return null;
     }
   };
+
+  api.interceptors.request.use(
+    async (config) => {
+      let token = localStorage.getItem("ACCESS_TOKEN");
+      if (token) {
+        const decoded = jwtDecode(token);
+        const now = Date.now() / 1000;
+
+        if (decoded.exp < now) {
+          token = await refreshToken();
+        }
+
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
   const value = {
+    api,
     navigate,
-    handleLogin,
-    authTokens,
-    user,
+    isAuthorized,
+    setIsAuthorized,
+    currency,
   };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
