@@ -47,7 +47,7 @@ class IncomeEditView(generics.RetrieveUpdateDestroyAPIView):
             print(serializer.errors)
 
 class CategoryView(generics.ListCreateAPIView):
-    serializer_classes = CategorySerializer
+    serializer_class = CategorySerializer
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
         get_user = self.request.user
