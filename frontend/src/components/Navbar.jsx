@@ -10,12 +10,12 @@ import { FaWallet } from "react-icons/fa";
 const Navbar = () => {
   const { navigate } = useContext(AuthContext)
   return (
-    <div className="absolute bottom-0 flex bg-white w-full justify-between py-3 px-4">
+    <div className="fixed bottom-0 flex bg-white w-full justify-between py-3 px-4">
       <div onClick={() => navigate('/')} className="flex flex-col items-center gap-1">
         <IoMdHome className="text-2xl" />
         <p>Home</p>
       </div>
-      <div className="flex flex-col items-center gap-1">
+      <div onClick={() => navigate('/transactions')}  className="flex flex-col items-center gap-1">
         <TfiMenuAlt className="text-2xl" />
         <p>Transactions</p>
       </div>

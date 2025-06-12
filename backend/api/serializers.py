@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Income
+from .models import CustomUser, Income, Category
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate, get_user_model
 
@@ -54,3 +54,8 @@ class IncomeSerializer(serializers.ModelSerializer):
         model = Income
         fields = '__all__'
         extra_kwargs = {"user" : {"read_only":True} }
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Category
+        fields = '__all__'

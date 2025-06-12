@@ -5,6 +5,7 @@ import Navbar from './components/Navbar'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Income from './pages/Income'
+import Transactions from './pages/Transactions'
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
     <Route path='/login' element={ <Login /> } />
     <Route path='/register' element={ <Register /> } />
     <Route path='/income' element={ <Income /> } />
+    <Route path='/transactions' element={ <Transactions /> } />
    </Routes>
 </div>
   </div>
