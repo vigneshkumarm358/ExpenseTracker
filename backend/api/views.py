@@ -52,3 +52,28 @@ class CategoryView(generics.ListCreateAPIView):
     def get_queryset(self):
         get_user = self.request.user
         return Category.objects.filter(user=get_user)
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(user=self.request.user)
+        else:
+            print(serializer.errors)
+
+class CategoryDeleteView(generics.DestroyAPIView):
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        return Category.objects.filter(user=self.request.user)
+    
+
+class TransactionsView(generics.ListCreateAPIView):
+    serializer_class = TransactionsSerializer
+
+    def get_queryset(self):
+        return Expense.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(user=self.request.user)
+        else:
+            print(serializer.errors)
