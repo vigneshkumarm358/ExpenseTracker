@@ -6,6 +6,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Income from './pages/Income'
 import Transactions from './pages/Transactions'
+import Analytics from './pages/Analytics'
+import Profile from './pages/Profile'
 
 const App = () => {
   return (
@@ -19,6 +21,8 @@ const App = () => {
     <Route path='/register' element={ <Register /> } />
     <Route path='/income' element={ <Income /> } />
     <Route path='/transactions' element={ <Transactions /> } />
+    <Route path='/analytics' element={ <Analytics /> } />
+    <Route path='/account' element={ <Profile /> } />
    </Routes>
 </div>
   </div>
